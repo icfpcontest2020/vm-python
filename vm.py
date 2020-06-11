@@ -10,7 +10,7 @@ class Vm:
                 return 'K'
             if isinstance(a, tuple):
                 return 'F'
-            raise ValueError("{0} is of type {1}, but Null or tuple is expected".format(a, type(a)))
+            raise ValueError("{0} is of type {1}, but None or tuple is expected".format(a, type(a)))
 
         self.builtin_functions1 = {
             'negate': {'eval_args': True, 'apply': lambda a: -assert_type(a, int)},
