@@ -24,7 +24,7 @@ class Vm:
             '-': {'eval_args': True, 'apply': lambda a, b: assert_type(a, int) - assert_type(b, int)},
             '*': {'eval_args': True, 'apply': lambda a, b: assert_type(a, int) * assert_type(b, int)},
             '/': {'eval_args': True, 'apply': lambda a, b: assert_type(a, int) // assert_type(b, int)},
-            '==': {'eval_args': True, 'apply': lambda a, b: assert_type(a, int) == assert_type(b, int)},
+            '==': {'eval_args': True, 'apply': lambda a, b: 'K' if assert_type(a, int) == assert_type(b, int) else 'F'},
             '>': {'eval_args': True, 'apply': lambda a, b: 'K' if assert_type(a, int) > assert_type(b, int) else 'F'},
             '>=': {'eval_args': True, 'apply': lambda a, b: 'K' if assert_type(a, int) >= assert_type(b, int) else 'F'},
             '<': {'eval_args': True, 'apply': lambda a, b: 'K' if assert_type(a, int) < assert_type(b, int) else 'F'},
