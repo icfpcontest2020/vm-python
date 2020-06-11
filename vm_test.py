@@ -41,6 +41,8 @@ class VmTests(unittest.TestCase):
         ['` tail ` ` pair 10 20', '20'],
         ['` n1035 ` ` pair 10 emptyList', '1', 'n1035 = ` ` S ` ` C isEmptyList 0 ` ` B ` + 1 ` ` B n1035 tail'],
         ['` ` drawClickedPixelProgram emptyList ` ` pair 0 0', '[0, [], [["0 0"]]]', 'drawClickedPixelProgram = ` ` C ` ` B B ` ` B ` B ` pair 0 ` ` C ` ` B B pair ` ` C pair emptyList ` ` C ` ` B pair ` ` C pair emptyList emptyList'],
+        ['` ` paintProgram emptyList ` ` pair 0 0', '[0, ["0 0"], [["0 0"]]]', 'paintProgram = ` ` B ` B ` ` S ` ` B ` B ` pair 0 ` ` C ` ` B B pair ` ` C pair emptyList ` ` C pair emptyList ` C pair'],
+        ['` ` paintProgram ` ` pair ` ` pair 0 0 emptyList ` ` pair 1 1', '[0, ["1 1", "0 0"], [["1 1", "0 0"]]]', 'paintProgram = ` ` B ` B ` ` S ` ` B ` B ` pair 0 ` ` C ` ` B B pair ` ` C pair emptyList ` ` C pair emptyList ` C pair'],
     ])
     def test_eval(self, exp, expected, *statements):
         for statement in statements:
