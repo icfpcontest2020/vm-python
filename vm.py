@@ -64,6 +64,43 @@ class Vm:
 
         return str(exp)
 
+    @staticmethod
+    def as_list(exp):
+        if exp is None:
+            return []
+
+        if isinstance(exp, tuple):
+            items = []
+            cur = exp
+            while True:
+                items.append(cur[0])
+                if cur[1] is None:
+                    return items
+                if not isinstance(cur[1], tuple):
+                    raise ValueError('{0} is not a list'.format(exp))
+                cur = cur[1]
+
+        raise ValueError('{0} is not a list'.format(exp))
+
+    @staticmethod
+    def compile(exp):
+        if exp is None:
+            return 'emptyList'
+
+        if isinstance(exp, tuple):
+            return '` ` pair {0} {1}'.format(Vm.compile(exp[0]), Vm.compile(exp[1]))
+
+        if isinstance(exp, Call):
+            return '` {0} {1}'.format(Vm.compile(exp.fun), Vm.compile(exp.arg))
+
+        if isinstance(exp, int):
+            return str(exp)
+
+        if isinstance(exp, str):
+            return exp
+
+        raise ValueError("Couldn't compile {0} of type {1}".format(exp, type(exp)))
+
     def execute_statement(self, line):
         parts = line.split(' ')
         name = parts[0]

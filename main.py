@@ -1,4 +1,12 @@
+import os
 from vm import Vm
+from subprocess import call
+
+
+def clear():
+    # check and make call for specific operating system
+    _ = call('clear' if os.name == 'posix' else 'cls')
+
 
 if __name__ == '__main__':
     program = '''n1029 = pair
@@ -77,4 +85,27 @@ operationSystem = n1141'''
     for line in program.split('\n'):
         vm.execute_statement(line)
 
-    print(Vm.format(vm.eval(vm.parse_exp('` ` operationSystem emptyList ` ` pair 0 0'))))
+    vm.execute_statement(
+        'paintProgram = ` ` B ` B ` ` S ` ` B ` B ` pair 0 ` ` C ` ` B B pair ` ` C pair emptyList ` ` C pair emptyList ` C pair')
+    vm.execute_statement(
+        'drawClickedPixelProgram = ` ` C ` ` B B ` ` B ` B ` pair 0 ` ` C ` ` B B pair ` ` C pair emptyList ` ` C ` ` B pair ` ` C pair emptyList emptyList')
+
+    # vm.execute_statement('boot = paintProgram')
+    # vm.execute_statement('boot = drawClickedPixelProgram')
+    vm.execute_statement('boot = operationSystem')
+
+    state = None
+    event = (0, 0)
+    while True:
+        res, state, screen_data = Vm.as_list(
+            vm.eval(vm.parse_exp('` ` boot {0} {1}'.format(Vm.compile(state), Vm.compile(event)))))
+        print('res: {0}'.format(res))
+        print('state: {0}'.format(Vm.format(state)))
+        screens = Vm.as_list(screen_data)
+        for i, screen in enumerate(screens):
+            print("screen {0}: {1}".format(i, Vm.format(screen)))
+
+        print(">>> ", end='')
+        event = tuple(int(i) for i in input().split(' '))
+
+    # print(Vm.format(vm.eval(vm.parse_exp('` ` operationSystem emptyList ` ` pair 0 0'))))
