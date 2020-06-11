@@ -12,6 +12,11 @@ class Vm:
                 return 'F'
             raise ValueError("{0} is of type {1}, but None or tuple is expected".format(a, type(a)))
 
+        def assert_type(x, t):
+            if isinstance(x, t):
+                return x
+            raise ValueError("{0} is of type {1}, but type {2} is expected".format(x, type(x), t))
+
         self.builtin_functions1 = {
             'negate': {'eval_args': True, 'apply': lambda a: -assert_type(a, int)},
             'isEmptyList': {'eval_args': True, 'apply': is_empty_list},
@@ -33,16 +38,31 @@ class Vm:
             'K': {'eval_args': False, 'apply': lambda a, b: a},
             'F': {'eval_args': False, 'apply': lambda a, b: b},
         }
+
         self.builtin_functions3 = {
             'S': {'eval_args': False, 'apply': lambda a, b, c: Call(Call(a, c), Call(b, c))},
             'B': {'eval_args': False, 'apply': lambda a, b, c: Call(a, Call(b, c))},
             'C': {'eval_args': False, 'apply': lambda a, b, c: Call(Call(a, c), b)},
         }
 
-        def assert_type(x, t):
-            if isinstance(x, t):
-                return x
-            raise ValueError("{0} is of type {1}, but type {2} is expected".format(x, type(x), t))
+    @staticmethod
+    def format(exp):
+        if exp is None:
+            return '[]'
+
+        if isinstance(exp, tuple):
+            items = []
+            cur = exp
+            while True:
+                items.append(Vm.format(cur[0]))
+                if cur[1] is None:
+                    return '[{0}]'.format(', '.join(items))
+                if not isinstance(cur[1], tuple):
+                    items.append(Vm.format(cur[1]))
+                    return '"{0}"'.format(' '.join(items))
+                cur = cur[1]
+
+        return str(exp)
 
     def execute_statement(self, line):
         parts = line.split(' ')

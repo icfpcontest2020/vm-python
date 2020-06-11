@@ -76,4 +76,4 @@ operationSystem = n1140'''
     for line in program.split('\n'):
         vm.execute_statement(line)
 
-    print(vm.eval(vm.parse_exp('` ` operationSystem emptyList ` ` pair 0 0')))
+    print(Vm.format(vm.eval(vm.parse_exp('` ` operationSystem emptyList ` ` pair 0 0'))))
