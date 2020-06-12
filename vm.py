@@ -34,7 +34,7 @@ class Vm:
             '>=': {'eval_args': True, 'apply': lambda a, b: 'K' if assert_type(a, int) >= assert_type(b, int) else 'F'},
             '<': {'eval_args': True, 'apply': lambda a, b: 'K' if assert_type(a, int) < assert_type(b, int) else 'F'},
             '<=': {'eval_args': True, 'apply': lambda a, b: 'K' if assert_type(a, int) <= assert_type(b, int) else 'F'},
-            'pair': {'eval_args': True, 'apply': lambda a, b: (a, b)},
+            'pair': {'eval_args': False, 'apply': lambda a, b: (a, b)},
             'K': {'eval_args': False, 'apply': lambda a, b: a},
             'F': {'eval_args': False, 'apply': lambda a, b: b},
         }
@@ -114,13 +114,19 @@ class Vm:
         exp, pos = self.__parse_parts(parts, 0)
         return exp
 
-    def eval(self, exp):
+    def eval(self, exp, reduce=True):
         if isinstance(exp, Call):
-            return exp.eval(self)
+            exp_eval = exp.eval(self)
+            return self.__reduce(exp_eval) if reduce else exp_eval
         if exp in self.builtin_constants:
             return self.builtin_constants[exp]
         if exp in self.named_functions:
-            return self.eval(self.named_functions[exp])
+            return self.eval(self.named_functions[exp], reduce)
+        return self.__reduce(exp) if reduce else exp
+
+    def __reduce(self, exp):
+        if isinstance(exp, tuple):
+            return self.eval(exp[0], reduce=True), self.eval(exp[1], reduce=True)
         return exp
 
     def __parse_parts(self, parts, pos):
@@ -149,10 +155,10 @@ class Call:
         if self.__evaluated:
             return self.__evaluated
 
-        fun = vm.eval(self.fun)
+        fun = vm.eval(self.fun, reduce=False)
 
         if isinstance(fun, tuple):
-            self.__evaluated = vm.eval(Call(Call(self.arg, fun[0]), fun[1]))
+            self.__evaluated = vm.eval(Call(Call(self.arg, fun[0]), fun[1]), reduce=False)
             return self.__evaluated
 
         if fun is None:
@@ -161,25 +167,25 @@ class Call:
 
         if fun in vm.builtin_functions1:
             builtin = vm.builtin_functions1[fun]
-            a = vm.eval(self.arg) if builtin['eval_args'] else self.arg
-            self.__evaluated = vm.eval(builtin['apply'](a))
+            a = vm.eval(self.arg, reduce=False) if builtin['eval_args'] else self.arg
+            self.__evaluated = vm.eval(builtin['apply'](a), reduce=False)
             return self.__evaluated
 
         if isinstance(fun, Call):
             if fun.fun in vm.builtin_functions2:
                 builtin = vm.builtin_functions2[fun.fun]
-                a = vm.eval(fun.arg) if builtin['eval_args'] else fun.arg
-                b = vm.eval(self.arg) if builtin['eval_args'] else self.arg
-                self.__evaluated = vm.eval(builtin['apply'](a, b))
+                a = vm.eval(fun.arg, reduce=False) if builtin['eval_args'] else fun.arg
+                b = vm.eval(self.arg, reduce=False) if builtin['eval_args'] else self.arg
+                self.__evaluated = vm.eval(builtin['apply'](a, b), reduce=False)
                 return self.__evaluated
 
             if isinstance(fun.fun, Call):
                 if fun.fun.fun in vm.builtin_functions3:
                     builtin = vm.builtin_functions3[fun.fun.fun]
-                    a = vm.eval(fun.fun.arg) if builtin['eval_args'] else fun.fun.arg
-                    b = vm.eval(fun.arg) if builtin['eval_args'] else fun.arg
-                    c = vm.eval(self.arg) if builtin['eval_args'] else self.arg
-                    self.__evaluated = vm.eval(builtin['apply'](a, b, c))
+                    a = vm.eval(fun.fun.arg, reduce=False) if builtin['eval_args'] else fun.fun.arg
+                    b = vm.eval(fun.arg, reduce=False) if builtin['eval_args'] else fun.arg
+                    c = vm.eval(self.arg, reduce=False) if builtin['eval_args'] else self.arg
+                    self.__evaluated = vm.eval(builtin['apply'](a, b, c), reduce=False)
                     return self.__evaluated
 
             self.__evaluated = self if fun == self.fun else Call(fun, self.arg)
